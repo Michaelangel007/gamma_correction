@@ -10,11 +10,18 @@ sub {
     position: absolute;
     left    : 0px;
 }
+.mid {
+    margin  : 0 0 0 0;
+    padding : 2 2 2 2;
+    position: absolute;
+    left    : 256px;
+}
 .right {
     margin  : 0 0 0 0;
     padding : 2 2 2 2;
     position: absolute;
     left    : 256px;
+    width   : 256px;
 }
 div.cursor {
     position        : fixed;
@@ -300,28 +307,30 @@ ul {
 </head>
 <body onload="onLoad();">
     <div style='height: 256px'>
-        <div id='linear'    class='left'  style='height: 256px; top: 0px;' ></div>
-        <div id='nonlinear' class='right' style='height: 256px; top: 0px;' ></div>
+        <div id='linear'    class='left' style='height: 256px; top: 0px;' ></div>
+        <div id='nonlinear' class='mid'  style='height: 256px; top: 0px;' ></div>
     </div>
-    <div align='center' style='width:512px; height:40px;'>
-        <div>
+    <div>
+        <div align='left'   class='left' >Linear (non gamma)</div>
+        <div align='right'  class='right'>Power  (gamma)</div>
+        <div align='center' style='width:512px;'>
             Gamma: <input id='gamma' type='number' onchange='onGammaChange()' min='0.4' max='3.0'></input>
-            <br><sub>Range: 0.4 to 3.0, OSX (old) = 1.8, OSX (new) & Windows = 2.2</sub>
+            <br><sub>Range: 0.4 to 3.0, OSX (old) = 1.8, OSX (new) &amp; Windows = 2.2</sub>
         </div>
     </div>
     <div style='height: 16px'>
         <div class='left'>
             %:<input id='in_percent_left'  type='number' onchange='onPercentLeftChange()'  min='0' max='100'></input>
         </div>
-        <div class='right'>
+        <div class='mid'>
             %:<input id='in_percent_right' type='number' onchange='onPercentRightChange()' min='0' max='100'></input>
         </div>
     </div>
     <p>
     <pre>
-        <span class='left'  id='color_left'  ></span><span class='right' id='color_right'  ></span>
-        <span class='left'  id='percent_left'></span><span class='right' id='percent_right'></span>
-        <sub>                                        <span class='right' id='misc'         ></span></sub></pre>
+        <span class='left'  id='color_left'  ></span><span class='mid' id='color_right'  ></span>
+        <span class='left'  id='percent_left'></span><span class='mid' id='percent_right'></span>
+        <sub>                                        <span class='mid' id='misc'         ></span></sub></pre>
     <hr><p><b>Instructions</b>: Drag the mouse over the gray gradient ramp.
     <br><b>How to Use</b>: After setting the desired gamma (2.2 or 1.8),
     <ul>
