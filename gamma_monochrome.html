@@ -4,7 +4,7 @@ https://github.com/Michaelangel007/gamma_correction
 -->
 <style>
 sub {
-    font-size: 75%;
+    font-size: 60%;
 }
 .left {
     position: absolute;
@@ -16,12 +16,20 @@ sub {
     position: absolute;
     left    : 256px;
 }
-div, pre, hr {
-    margin: 0 0 0 0;
-    padding:0 0 0 0;
+div, pre, hr, p {
+    margin : 0 0 0 0;
+    padding: 0 0 0 0;
 }
 div.line {
+    width : 256px;
     height: 1px;
+}
+div.dot {
+    width : 1px;
+    height: 1px;
+}
+ul {
+    margin: 0
 }
 </style>
 <head>
@@ -32,6 +40,7 @@ div.line {
         var spc3       = new Array(3).join(' ');
         var spc7       = new Array(7).join(' ');
 
+        // left: collection of horizontal lines from #FFF .. #000 pre-gamma
         function addDivLinear()
         {
             var parent = document.getElementById( 'linear' );
@@ -51,8 +60,6 @@ div.line {
                 div.style.position        = 'fixed';
                 div.style.top             = i + 'px';
                 div.style.left            = '0px';
-                div.style.width           = '256px';
-                div.style.height          = '1px';
 
                 aPreGamma.push( hex );
 
@@ -60,6 +67,7 @@ div.line {
             }
         }
 
+        // right: collection of horizontal lines from #FFF ... #000 post-gamma
         function addDivGamma()
         {
             var parent = document.getElementById( 'nonlinear' );
@@ -83,10 +91,45 @@ div.line {
                 div.style.position        = 'fixed';
                 div.style.top             = i + 'px';
                 div.style.left            = '256px';
-                div.style.width           = '256px';
-                div.style.height          = '1px';
 
-                aPostGamma.push( hex );
+                aPostGamma.push( hex ); // 2 hex digits
+
+                parent.appendChild( div );
+            }
+        }
+
+        // Gamma curve from left to right
+        function addCurveGamma()
+        {
+            var parent = document.getElementById( 'linear' );
+            var i, id, div;
+
+            for( i = 0; i < 256; i++ )
+            {
+                id  = ('0' + i.toString(16)).slice(-2); // left-to-right
+                y   = parseInt( '0x' + aPostGamma[i] ); // 2 hex digits
+
+                // Green: Given y, display x position of gamma
+                div = document.createElement('div');
+                div.classList.add( 'dot' );
+                div.id                    = 'r' + id;
+                div.style.backgroundColor = '#008000';
+                div.style.position        = 'fixed';
+
+                div.style.top             = i + 'px';
+                div.style.left            = y + 'px';
+
+                parent.appendChild( div );
+
+                // Blue, actual gamma curve
+                div = document.createElement('div');
+                div.classList.add( 'dot' );
+                div.id                    = 'a' + id;
+                div.style.backgroundColor = '#004080';
+                div.style.position        = 'fixed';
+
+                div.style.top             = (255 - y) + 'px';
+                div.style.left            = (255 - i) + 'px';
 
                 parent.appendChild( div );
             }
@@ -95,28 +138,41 @@ div.line {
         function applyGamma()
         {
             var parent = document.getElementById('nonlinear');
-            var i, id, div;
+
+            var i, id, div, pix;
             var n, g, hex;
 
             for( i = 0; i < 256; i++ )
             {
                 n   = 255 - i;
+
                 id  = ('0' + n.toString(16)).slice(-2);
                 div = document.getElementById( 'g' + id );
 
                 g   = 255 * Math.pow( n/255, gamma ) | 0;
                 hex = ('0' + g.toString(16)).slice(-2);
+                div.style.backgroundColor = '#' + hex + hex + hex;
 
                 aPostGamma[ i ] = hex;
 
-                div.style.backgroundColor = '#' + hex + hex + hex;
+                // Update gamma curve pixels
+                y   = parseInt( '0x' + aPostGamma[i] ); // 2 hex digits
+
+                dot = document.getElementById( 'r' + id );
+                dot.style.top             = i + 'px';
+                dot.style.left            = y + 'px';
+
+                dot = document.getElementById( 'a' + id );
+                dot.style.top             = (255 - y) + 'px';
+                dot.style.left            = (255 - i) + 'px';
            }
         }
 
         function onLoad()
         {
-            addDivLinear();
-            addDivGamma();
+            addDivLinear ();
+            addDivGamma  ();
+            addCurveGamma();
 
             document.addEventListener( 'mousemove', onMouseMove );
 
@@ -240,7 +296,7 @@ div.line {
     <div align='center' style='width:512px; height:40px;'>
         <div>
             Gamma: <input id='gamma' type='number' onchange='onGammaChange()' min='0.4' max='3.0'></input>
-            <br><sub>0.4 to 3.0</sub>
+            <br><sub>0.4 to 3.0, OSX (old) = 1.8, OSX (new) & Windows = 2.2</sub>
         </div>
     </div>
     <div style='height: 16px'>
@@ -255,12 +311,15 @@ div.line {
     <pre>
         <span class='left'  id='color_left'  ></span><span class='right' id='color_right'  ></span>
         <span class='left'  id='percent_left'></span><span class='right' id='percent_right'></span>
-        <sub>                                        <span class='right' id='misc'         ></span></sub>
-    </pre>
-    <hr>
-    <p><b>Instructions</b>: Drag the mouse over the gray gradient ramp.
-    <br><b>How to Use</b>: After setting the desired gamma (2.2 or 1.8), enter the % on the <b>right.<b/> Use the RGB values on the left.
-    <br>
-    <br> <b>Note</b>: Gamma 1 / 2.2 = 0.454545
+        <sub>                                        <span class='right' id='misc'         ></span></sub></pre>
+    <hr><p><b>Instructions</b>: Drag the mouse over the gray gradient ramp.
+    <br><b>How to Use</b>: After setting the desired gamma (2.2 or 1.8), enter the % on the <b>right.</b> Use the RGB values on the <b>left.</b>
+    <p>
+    <p><b>Legend:</b>
+<ul>
+    <li><b><span style='color:#008000'>Green</span></b> Column is gamma correct value</li>
+    <li><b><span style='color:#004080'>Blue </span></b> Actual gamma curve           </li>
+</ul>
+    <p><b>Note</b>: Gamma 1 / 2.2 = 0.454545
     <div id='line' class='left' style='background-Color: #FF0000; width: 512px; height: 1px; top: -1px;'></div>
 </body>
