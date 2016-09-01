@@ -1,0 +1,269 @@
+<html>
+<style>
+sub {
+    font-size: 75%;
+}
+.left {
+    position: absolute;
+    left    : 0px;
+}
+.right {
+    margin  : 0 0 0 0;
+    padding : 2 2 2 2;
+    position: absolute;
+    left    : 256px;
+}
+div, pre, hr {
+    margin: 0 0 0 0;
+    padding:0 0 0 0;
+}
+div.i {
+    height: 1px;
+}
+div.g {
+    height: 1px;
+}
+</style>
+<head>
+    <script>
+        var gamma      = 2.2;
+        var aPreGamma  = [];
+        var aPostGamma = [];
+        var spc3       = new Array(3).join(' ');
+        var spc7       = new Array(7).join(' ');
+
+        function addDivLinear()
+        {
+            var parent = document.getElementById( 'linear' );
+
+            // i00 .. iff
+            var i, n, div, hex;
+            for( i = 0; i < 256; i++ )
+            {
+                n   = 255 - i;
+                id  = ('0' + n.toString(16)).slice(-2);
+                hex = id;
+
+                div = document.createElement('div');
+                div.classList.add( 'i' );
+                div.id  = 'i' + id;
+                div.style.backgroundColor = '#' + hex + hex + hex;
+                div.style.position        = 'fixed';
+                div.style.top             = i + 'px';
+                div.style.left            = '0px';
+                div.style.width           = '256px';
+                div.style.height          = '1px';
+
+                aPreGamma.push( hex );
+
+                parent.appendChild( div );
+            }
+        }
+
+        function addDivGamma()
+        {
+            var parent = document.getElementById( 'nonlinear' );
+
+            // g00 .. gff
+            var div, id;
+            var i, g, n, hex;
+
+            for( i = 0; i < 256; i++ )
+            {
+                n   = 255 - i;
+                id  = ('0' + n.toString(16)).slice(-2);
+
+                g   = 255 * Math.pow( n/255, gamma ) | 0;
+                hex = ('0' + g.toString(16)).slice(-2);
+
+                div = document.createElement('div');
+                div.id = 'g' + id;
+                div.classList.add( 'g' );
+                div.style.backgroundColor = '#' + hex + hex + hex;
+                div.style.position        = 'fixed';
+                div.style.top             = i + 'px';
+                div.style.left            = '256px';
+                div.style.width           = '256px';
+                div.style.height          = '1px';
+
+                aPostGamma.push( hex );
+
+                parent.appendChild( div );
+            }
+        }
+
+        function applyGamma()
+        {
+            var parent = document.getElementById('nonlinear');
+            var i, id, div;
+            var n, g, hex;
+
+            for( i = 0; i < 256; i++ )
+            {
+                n   = 255 - i;
+                id  = ('0' + n.toString(16)).slice(-2);
+                div = document.getElementById( 'g' + id );
+
+                g   = 255 * Math.pow( n/255, gamma ) | 0;
+                hex = ('0' + g.toString(16)).slice(-2);
+
+                aPostGamma[ i ] = hex;
+
+                div.style.backgroundColor = '#' + hex + hex + hex;
+           }
+        }
+
+        function onLoad()
+        {
+            addDivLinear();
+            addDivGamma();
+
+            document.addEventListener( 'mousemove', onMouseMove );
+
+            var input = document.getElementById( 'gamma' );
+            input.value = gamma;
+        }
+
+        function onGammaChange()
+        {
+            var e = document.getElementById('gamma');
+            gamma = parseFloat( e.value );
+
+            if (gamma < 0.5) gamma = 0.5;
+            if (gamma > 3.0) gamma = 3.0;
+
+            applyGamma();
+        }
+
+        function onMouseOver( e )
+        {
+            // http://stackoverflow.com/questions/18320190/without-jquery-i-need-to-find-out-if-the-mouse-is-over-an-element-not-determine
+            //var x = e.clientX;
+            //var y = e.clientY;
+            //http://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_onmousemove
+            var i = parseInt( getComputedStyle(e).top );
+            updateStatus( i );
+        }
+
+        function updateStatus( i )
+        {
+            var n  = 255 - i;
+            var p  = (100 * n) / 255
+            var p1 = (spc3 + p.toFixed( 3 )).slice(-7);
+
+            var j  = 255 * Math.pow( n/255, gamma ) | 0;
+            var r  = 255 - j;
+            var p3 = (100 * j) / 255;
+            var p4 = (spc3 + p3.toFixed( 3 )).slice(-7);
+
+            var info1 = document.getElementById( 'color_left'    );
+            var info2 = document.getElementById( 'color_right'   );
+            var info3 = document.getElementById( 'percent_left'  );
+            var info4 = document.getElementById( 'percent_right' );
+            var info5 = document.getElementById( 'misc'          );
+
+            var id   = ('0' + n.toString(16)).slice(-2);
+            var id2  = ('0' + j.toString(16)).slice(-2); // j
+            var obj1 = document.getElementById( 'i' + id );
+            var obj2 = document.getElementById( 'g' + id );
+            var obj3 = document.getElementById( 'g' + id2);
+
+            var color1 = (obj1.style.backgroundColor + spc7).substr(0,18); // pre  gamma // rgb(255, 255, 255)
+            var color2 = (obj2.style.backgroundColor + spc7).substr(0,18); // post gamma // rgb(0, 0, 0)
+            var color3 = (obj3.style.backgroundColor + spc7).substr(0,18); // debug
+
+            var hex1 = aPreGamma [ i ];
+            var hex2 = aPostGamma[ i ];
+            var hex3 = aPostGamma[ r ];
+
+            // Colors
+            info1.innerHTML = color1 + '  #' + hex1 + hex1 + hex1;
+            info2.innerHTML = color2 + '  #' + hex2 + hex2 + hex2;
+
+            // Percents
+            info3.innerHTML = '' + ('  '+n).slice(-3) + ' / 255 (' + p1 + '%) ';
+            info4.innerHTML = '' + ('  '+j).slice(-3) + ' / 255 (' + p4 + '%) ';
+
+            info5.innerHTML = '<sub>Debug: ' + color3 + '  #' + hex3 + hex3 + hex3 + '</sub>';;
+
+            var line  = document.getElementById( 'line'         );
+            line.style.top = i;
+        }
+
+        function onMouseMove(e)
+        {
+            if( e !== undefined )
+            {
+                var x   = e.clientX;
+                var y   = e.clientY;
+                var obj = document.elementFromPoint( x, y );
+                if( obj !== undefined )
+                {
+                    var c = obj.className;
+                    if( c === 'g' )
+                        onMouseOver( obj );
+                    else
+                    if( c === 'i' )
+                    {
+                        onMouseOver( obj );
+                    }
+                }
+            }
+        }
+
+        function onPercentLeftChange()
+        {
+            var e = document.getElementById( 'in_percent_left' );
+            var v = parseFloat( e.value ); // 0 .. 100
+
+            var p = v / 100; // 0.0 .. 1.0
+            var i = (255 * p) | 0; // 0 .. 255
+            var r =  255 - i; // 255 .. 0
+
+            updateStatus( r );
+        }
+
+        function onPercentRightChange()
+        {
+            var e = document.getElementById( 'in_percent_right' );
+            var v = parseFloat( e.value ); // 0 .. 100
+
+            var p = v / 100;
+            var g = (255 * Math.pow( p, 1/gamma )) | 0;
+            var r =  255 - g; // 255 .. 0
+
+            updateStatus( r );
+        }
+
+    </script>
+</head>
+<body onload="onLoad();">
+    <div style='height: 256px'>
+        <div id='linear'    class='left'  style='height: 256px; top: 0px;' ></div>
+        <div id='nonlinear' class='right' style='height: 256px; top: 0px;' ></div>
+    </div>
+    <div align='center' style='width:512px; height:40px;'>
+        <div>
+            Gamma: <input id='gamma' type='number' onchange='onGammaChange()' min='0.4' max='3.0'></input>
+            <br><sub>0.4 to 3.0</sub>
+        </div>
+    </div>
+    <div style='height: 16px'>
+        <div class='left'>
+            %:<input id='in_percent_left'  type='number' onchange='onPercentLeftChange()'  min='0' max='100'></input>
+        </div>
+        <div class='right'>
+            %:<input id='in_percent_right' type='number' onchange='onPercentRightChange()' min='0' max='100'></input>
+        </div>
+    </div>
+    <p>
+    <pre>
+        <span class='left'  id='color_left'  ></span><span class='right' id='color_right'  ></span>
+        <span class='left'  id='percent_left'></span><span class='right' id='percent_right'></span>
+        <sub>                                        <span class='right' id='misc'         ></span></sub>
+    </pre>
+    <hr>
+    <p><b>Instructions</b>: Drag the mouse over the gray gradient ramp.
+    <br> <b>Note</b>: Gamma 1 / 2.2 = 0.454545
+    <div id='line' class='left' style='background-Color: #FF0000; width: 512px; height: 1px; top: -1px;'></div>
+</body>
