@@ -20,10 +20,7 @@ div, pre, hr {
     margin: 0 0 0 0;
     padding:0 0 0 0;
 }
-div.i {
-    height: 1px;
-}
-div.g {
+div.line {
     height: 1px;
 }
 </style>
@@ -39,7 +36,7 @@ div.g {
         {
             var parent = document.getElementById( 'linear' );
 
-            // i00 .. iff
+            // b00 .. iff
             var i, n, div, hex;
             for( i = 0; i < 256; i++ )
             {
@@ -48,8 +45,8 @@ div.g {
                 hex = id;
 
                 div = document.createElement('div');
-                div.classList.add( 'i' );
-                div.id  = 'i' + id;
+                div.classList.add( 'line' );
+                div.id                    = 'b' + id;
                 div.style.backgroundColor = '#' + hex + hex + hex;
                 div.style.position        = 'fixed';
                 div.style.top             = i + 'px';
@@ -80,8 +77,8 @@ div.g {
                 hex = ('0' + g.toString(16)).slice(-2);
 
                 div = document.createElement('div');
-                div.id = 'g' + id;
-                div.classList.add( 'g' );
+                div.classList.add( 'line' );
+                div.id                    = 'g' + id;
                 div.style.backgroundColor = '#' + hex + hex + hex;
                 div.style.position        = 'fixed';
                 div.style.top             = i + 'px';
@@ -167,7 +164,7 @@ div.g {
 
             var id   = ('0' + n.toString(16)).slice(-2);
             var id2  = ('0' + j.toString(16)).slice(-2); // j
-            var obj1 = document.getElementById( 'i' + id );
+            var obj1 = document.getElementById( 'b' + id );
             var obj2 = document.getElementById( 'g' + id );
             var obj3 = document.getElementById( 'g' + id2);
 
@@ -203,13 +200,8 @@ div.g {
                 if( obj !== undefined )
                 {
                     var c = obj.className;
-                    if( c === 'g' )
+                    if( c === 'line' ) // before (left) or gamma (right)
                         onMouseOver( obj );
-                    else
-                    if( c === 'i' )
-                    {
-                        onMouseOver( obj );
-                    }
                 }
             }
         }
@@ -267,7 +259,7 @@ div.g {
     </pre>
     <hr>
     <p><b>Instructions</b>: Drag the mouse over the gray gradient ramp.
-    <br><b>How to Use</b>: After setting the desired gamma (2.2 or 1.8), enter the % on the right. Use the RGB values on the left.
+    <br><b>How to Use</b>: After setting the desired gamma (2.2 or 1.8), enter the % on the <b>right.<b/> Use the RGB values on the left.
     <br>
     <br> <b>Note</b>: Gamma 1 / 2.2 = 0.454545
     <div id='line' class='left' style='background-Color: #FF0000; width: 512px; height: 1px; top: -1px;'></div>
