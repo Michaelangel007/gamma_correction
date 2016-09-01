@@ -240,7 +240,7 @@ ul {
             info3.innerHTML = '' + ('  '+n).slice(-3) + ' / 255 (' + p1 + '%) ';
             info4.innerHTML = '' + ('  '+j).slice(-3) + ' / 255 (' + p4 + '%) ';
 
-            info5.innerHTML = '<sub>Debug: ' + color3 + '  #' + hex3 + hex3 + hex3 + '</sub>';;
+            info5.innerHTML = 'Debug: ' + color3 + '  #' + hex3 + hex3 + hex3;
 
             var line  = document.getElementById( 'line'         );
             line.style.top = i;
@@ -296,7 +296,7 @@ ul {
     <div align='center' style='width:512px; height:40px;'>
         <div>
             Gamma: <input id='gamma' type='number' onchange='onGammaChange()' min='0.4' max='3.0'></input>
-            <br><sub>0.4 to 3.0, OSX (old) = 1.8, OSX (new) & Windows = 2.2</sub>
+            <br><sub>Range: 0.4 to 3.0, OSX (old) = 1.8, OSX (new) & Windows = 2.2</sub>
         </div>
     </div>
     <div style='height: 16px'>
@@ -317,9 +317,9 @@ ul {
     <p>
     <p><b>Legend:</b>
 <ul>
-    <li><b><span style='color:#008000'>Green</span></b> Column is gamma correct value</li>
-    <li><b><span style='color:#004080'>Blue </span></b> Actual gamma curve           </li>
+    <li><b><span style='color:#008000'>Green</span></b>: X column is gamma correct value,</li>
+    <li><b><span style='color:#004080'>Blue </span></b>: Y row is actual gamma curve.    </li>
 </ul>
-    <p><b>Note</b>: Gamma 1 / 2.2 = 0.454545
+    <p><sub><b>Note</b>: Gamma 1 / 2.2 = 0.454545.</sub>
     <div id='line' class='left' style='background-Color: #FF0000; width: 512px; height: 1px; top: -1px;'></div>
 </body>
